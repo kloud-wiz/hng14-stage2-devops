@@ -343,19 +343,27 @@ jobs:
             echo "Building new images..."
             docker compose build
 
-            echo "Rolling update — API..."
-            docker compose up -d --no-deps --build api
-            timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-api-1)" = "healthy" ]; do sleep 2; done' \
-              || { echo "API health check failed, aborting"; exit 1; }
+            # If stack is not running, do a clean start
+            if [ -z "$(docker compose ps -q)" ]; then
+              echo "Stack not running, doing clean start..."
+              docker compose up -d
+              echo "Waiting for stack to be healthy..."
+              sleep 30
+            else
+              echo "Rolling update — API..."
+              docker compose up -d --no-deps --build api
+              timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-api-1)" = "healthy" ]; do sleep 2; done' \
+                || { echo "API health check failed, aborting"; exit 1; }
 
-            echo "Rolling update — Worker..."
-            docker compose up -d --no-deps --build worker
-            timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-worker-1)" = "healthy" ]; do sleep 2; done' \
-              || { echo "Worker health check failed, aborting"; exit 1; }
+              echo "Rolling update — Worker..."
+              docker compose up -d --no-deps --build worker
+              timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-worker-1)" = "healthy" ]; do sleep 2; done' \
+                || { echo "Worker health check failed, aborting"; exit 1; }
 
-            echo "Rolling update — Frontend..."
-            docker compose up -d --no-deps --build frontend
-            timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-frontend-1)" = "healthy" ]; do sleep 2; done' \
-              || { echo "Frontend health check failed, aborting"; exit 1; }
+              echo "Rolling update — Frontend..."
+              docker compose up -d --no-deps --build frontend
+              timeout 60 bash -c 'until [ "$(docker inspect --format={{.State.Health.Status}} hng14-stage2-devops-frontend-1)" = "healthy" ]; do sleep 2; done' \
+                || { echo "Frontend health check failed, aborting"; exit 1; }
+            fi
 
             echo "Deploy complete"
