@@ -26,7 +26,11 @@ def process_job(job_id):
 
 print("Worker started, waiting for jobs...")
 while True:
-    job = r.brpop("jobs", timeout=5)
-    if job:
-        _, job_id = job
-        process_job(job_id)
+    try:
+        job = r.brpop("jobs", timeout=5)
+        if job:
+            _, job_id = job
+            process_job(job_id)
+    except Exception as e:
+        print(f"Error processing job: {e}")
+        time.sleep(1)

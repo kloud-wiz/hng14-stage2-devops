@@ -22,9 +22,9 @@ app.post('/submit', async (req, res) => {
 app.get('/status/:id', async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/jobs/${req.params.id}`);
-    console.error("Error fetching status:", err.message);
     res.json(response.data);
   } catch (err) {
+    console.error("Error fetching status:", err.message);
     res.status(500).json({ error: "something went wrong" });
   }
 });
