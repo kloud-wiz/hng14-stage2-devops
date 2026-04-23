@@ -4,7 +4,7 @@ const path = require('path');
 
 const app = express();
 const API_URL = process.env.API_URL || "http://api:8000";
-const PORT = process.env.FRONTEND_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'views')));

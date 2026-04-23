@@ -79,7 +79,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - API_URL=${API_URL}
-      - FRONTEND_PORT=${FRONTEND_PORT}
+      - PORT=3000
     ports:
       - "${FRONTEND_PORT}:3000"
     networks:
