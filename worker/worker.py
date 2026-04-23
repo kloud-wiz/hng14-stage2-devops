@@ -11,18 +11,22 @@ r = redis.Redis(
     decode_responses=True
 )
 
+
 def handle_shutdown(signum, frame):
     print("Shutting down worker gracefully...")
     sys.exit(0)
 
+
 signal.signal(signal.SIGTERM, handle_shutdown)
 signal.signal(signal.SIGINT, handle_shutdown)
+
 
 def process_job(job_id):
     print(f"Processing job {job_id}")
     time.sleep(2)  # simulate work
     r.hset(f"job:{job_id}", "status", "completed")
     print(f"Done: {job_id}")
+
 
 print("Worker started, waiting for jobs...")
 while True:
